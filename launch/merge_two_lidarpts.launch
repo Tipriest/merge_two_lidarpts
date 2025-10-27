@@ -14,6 +14,5 @@
         <param name="back_pitch" value = "-1.5707963267949"/>
         <param name="back_yaw" value = "0"/>
         <param name="aim_frame_id" type = "string" value = "base_link"/>
-
     </node>
 </launch>
