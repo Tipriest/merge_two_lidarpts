@@ -64,12 +64,42 @@ struct trans_from_lidar_to_base {
 };
 class LidarPointCloudMerger {
 public:
-  LidarPointCloudMerger() {
+  LidarPointCloudMerger(ros::NodeHandle& nh) {
+    node = nh;
     // Initialize subscribers for the front and back LiDARs
     sub_front = node.subscribe("/rslidar_points_front", 10,
                                &LidarPointCloudMerger::frontCallback, this);
     sub_back = node.subscribe("/rslidar_points_back", 10,
                               &LidarPointCloudMerger::backCallback, this);
+
+    // 确保正确读取参数，并打印日志以验证
+    node.param<double>("front_x", front_x, 0.0);
+    ROS_INFO("Loaded parameter front_x: %f", front_x);
+    node.param<double>("front_y", front_y, 0.0);
+    ROS_INFO("Loaded parameter front_y: %f", front_y);
+    node.param<double>("front_z", front_z, 0.0);
+    ROS_INFO("Loaded parameter front_z: %f", front_z);
+    node.param<double>("front_roll", front_roll, 0.0);
+    ROS_INFO("Loaded parameter front_roll: %f", front_roll);
+    node.param<double>("front_pitch", front_pitch, 0.0);
+    ROS_INFO("Loaded parameter front_pitch: %f", front_pitch);
+    node.param<double>("front_yaw", front_yaw, 0.0);
+    ROS_INFO("Loaded parameter front_yaw: %f", front_yaw);
+
+    node.param<double>("back_x", back_x, 0.0);
+    ROS_INFO("Loaded parameter back_x: %f", back_x);
+    node.param<double>("back_y", back_y, 0.0);
+    ROS_INFO("Loaded parameter back_y: %f", back_y);
+    node.param<double>("back_z", back_z, 0.0);
+    ROS_INFO("Loaded parameter back_z: %f", back_z);
+    node.param<double>("back_roll", back_roll, 0.0);
+    ROS_INFO("Loaded parameter back_roll: %f", back_roll);
+    node.param<double>("back_pitch", back_pitch, 0.0);
+    ROS_INFO("Loaded parameter back_pitch: %f", back_pitch);
+    node.param<double>("back_yaw", back_yaw, 0.0);
+    ROS_INFO("Loaded parameter back_yaw: %f", back_yaw);
+    node.param<std::string>("aim_frame_id", aim_frame_id, "ttt_err_check");
+    std::cout<<"Loaded parameter aim_frame_id: "<< aim_frame_id<<std::endl;
 
     // Initialize publisher for the merged point cloud
     pub_merged =
@@ -78,15 +108,16 @@ public:
     // Set up homogeneous transformation matrices (to be filled by the user)
 
     transform_front_to_base =
-        trans_from_lidar_to_base(0.776, 0.0, 0.12, 0.0, 1.5707963267949, 0.0)
+        trans_from_lidar_to_base(front_x, front_y, front_z, front_roll,
+                                 front_pitch, front_yaw)
             .getTranmissionLidarToBase();
-    std::cout << "front lidar to base_link's transformission"
+    std::cout << "front lidar to base_link's transformission" << std::endl
               << transform_front_to_base << std::endl;
     transform_back_to_base =
-        trans_from_lidar_to_base(-0.776, 0.0, 0.12, 3.1415926535,
-                                 1.5707963267949, 0)
+        trans_from_lidar_to_base(back_x, back_y, back_z, back_roll, back_pitch,
+                                 back_yaw)
             .getTranmissionLidarToBase();
-    std::cout << "back lidar to base_link's transformission"
+    std::cout << "back lidar to base_link's transformission" << std::endl
               << transform_back_to_base << std::endl;
   }
 
@@ -97,6 +128,7 @@ public:
     pcl::transformPointCloud(cloud, cloud, transform_front_to_base);
     // store the latest front cloud
     front_cloud = cloud;
+    front_cloud_updated = true;
     mergeAndPublish();
   }
 
@@ -105,11 +137,12 @@ public:
     PointCloudXYZI cloud;
     pcl::fromROSMsg(*msg, cloud);
     pcl::transformPointCloud(cloud, back_cloud, transform_back_to_base);
+    back_cloud_updated = true;
     mergeAndPublish();
   }
   void mergeAndPublish() {
     // std::cout << "mergeAndPublish" << std::endl;
-    if (front_cloud.empty() || back_cloud.empty()) {
+    if (!front_cloud_updated || !back_cloud_updated) {
       return; // Wait until both clouds are available
     }
 
@@ -125,8 +158,10 @@ public:
     sensor_msgs::PointCloud2 output_msg;
     pcl::toROSMsg(merged_cloud, output_msg);
     output_msg.header.stamp = ros::Time::now();
-    output_msg.header.frame_id = "base_link"; // Adjust frame ID as needed
+    output_msg.header.frame_id = aim_frame_id; // Adjust frame ID as needed
     pub_merged.publish(output_msg);
+    front_cloud_updated = false;
+    back_cloud_updated = false;
   }
 
 private:
@@ -137,15 +172,32 @@ private:
 
   PointCloudXYZI front_cloud;
   PointCloudXYZI back_cloud;
+  bool front_cloud_updated = false;
+  bool back_cloud_updated = false;
 
   Eigen::Matrix4f transform_front_to_base;
   Eigen::Matrix4f transform_back_to_base;
+
+  // calibration params
+  double front_x = 0.0;
+  double front_y = 0.0;
+  double front_z = 0.0;
+  double front_roll = 0.0;
+  double front_pitch = 0.0;
+  double front_yaw = 0.0;
+  double back_x = 0.0;
+  double back_y = 0.0;
+  double back_z = 0.0;
+  double back_roll = 0.0;
+  double back_pitch = 0.0;
+  double back_yaw = 0.0;
+  std::string aim_frame_id = "";
 };
 
 int main(int argc, char *argv[]) {
   ros::init(argc, argv, "lidar_pointcloud_merger");
-
-  LidarPointCloudMerger merger;
+  ros::NodeHandle nh("~");
+  LidarPointCloudMerger merger(nh);
 
   ros::spin();
 

@@ -1,0 +1,19 @@
+<launch>
+    <node pkg="merge_two_lidarpts" type="merge_two_lidarpts_node" name="merge_two_lidarpts" output="screen">
+        <!-- 确保参数作用域正确 -->
+        <param name="front_x" type = "double" value = "0.776"/>
+        <param name="front_y" value = "0.0"/>
+        <param name="front_z" value = "0.12"/>
+        <param name="front_roll" value = "0.0"/>
+        <param name="front_pitch" value = "1.5707963267949"/>
+        <param name="front_yaw" value = "0.0"/>
+        <param name="back_x" value = "-0.776"/>
+        <param name="back_y" value = "0.0"/>
+        <param name="back_z" value = "0.12"/>
+        <param name="back_roll" value = "3.1415926535"/>
+        <param name="back_pitch" value = "-1.5707963267949"/>
+        <param name="back_yaw" value = "0"/>
+        <param name="aim_frame_id" type = "string" value = "base_link"/>
+
+    </node>
+</launch>
