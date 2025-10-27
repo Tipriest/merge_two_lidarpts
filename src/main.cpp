@@ -1,5 +1,5 @@
-#include <Eigen/Dense>
 #include <cmath>
+#include <eigen3/Eigen/Dense>
 #include <iostream>
 #include <pcl/common/transforms.h>
 #include <pcl/io/io.h>
@@ -91,6 +91,7 @@ public:
   }
 
   void frontCallback(const sensor_msgs::PointCloud2ConstPtr &msg) {
+    // std::cout << "frontCallback" << std::endl;
     PointCloudXYZI cloud;
     pcl::fromROSMsg(*msg, cloud);
     pcl::transformPointCloud(cloud, cloud, transform_front_to_base);
@@ -100,12 +101,14 @@ public:
   }
 
   void backCallback(const sensor_msgs::PointCloud2ConstPtr &msg) {
+    // std::cout << "backCallback" << std::endl;
     PointCloudXYZI cloud;
     pcl::fromROSMsg(*msg, cloud);
     pcl::transformPointCloud(cloud, back_cloud, transform_back_to_base);
     mergeAndPublish();
   }
   void mergeAndPublish() {
+    // std::cout << "mergeAndPublish" << std::endl;
     if (front_cloud.empty() || back_cloud.empty()) {
       return; // Wait until both clouds are available
     }
@@ -125,8 +128,6 @@ public:
     output_msg.header.frame_id = "base_link"; // Adjust frame ID as needed
     pub_merged.publish(output_msg);
   }
-  PointCloudXYZI front_cloud;
-  PointCloudXYZI back_cloud;
 
 private:
   ros::NodeHandle node;
@@ -134,7 +135,7 @@ private:
   ros::Subscriber sub_back;
   ros::Publisher pub_merged;
 
-  PointCloudXYZI front_cloud_queue;
+  PointCloudXYZI front_cloud;
   PointCloudXYZI back_cloud;
 
   Eigen::Matrix4f transform_front_to_base;
