@@ -17,6 +17,5 @@
         <param name="front_lidar_topic" type = "string" value = "/rslidar_points_trans_front"/>
         <param name="back_lidar_topic" type = "string" value = "/rslidar_points_trans_back"/>
         <param name="merged_lidar_topic" type = "string" value = "/rslidar_points_trans_merged"/>
-
     </node>
 </launch>
