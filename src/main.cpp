@@ -66,12 +66,6 @@ class LidarPointCloudMerger {
 public:
   LidarPointCloudMerger(ros::NodeHandle &nh) {
     node = nh;
-    // Initialize subscribers for the front and back LiDARs
-    sub_front = node.subscribe(front_lidar_topic, 10,
-                               &LidarPointCloudMerger::frontCallback, this);
-    sub_back = node.subscribe(back_lidar_topic, 10,
-                              &LidarPointCloudMerger::backCallback, this);
-
     // 确保正确读取参数，并打印日志以验证
     node.param<double>("front_x", front_x, 0.0);
     ROS_INFO("Loaded parameter front_x: %f", front_x);
@@ -112,6 +106,13 @@ public:
                             "/rslidar_points_merged");
     std::cout << "Loaded parameter merged_lidar_topic: " << merged_lidar_topic
               << std::endl;
+
+    // Initialize subscribers for the front and back LiDARs
+    sub_front = node.subscribe(front_lidar_topic, 10,
+                               &LidarPointCloudMerger::frontCallback, this);
+    sub_back = node.subscribe(back_lidar_topic, 10,
+                              &LidarPointCloudMerger::backCallback, this);
+
     // Initialize publisher for the merged point cloud
     pub_merged =
         node.advertise<sensor_msgs::PointCloud2>(merged_lidar_topic, 10);

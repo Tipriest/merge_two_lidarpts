@@ -1,15 +1,16 @@
 <launch>
     <node pkg="merge_two_lidarpts" type="merge_two_lidarpts_node" name="merge_two_lidarpts" output="screen">
         <!-- 确保参数作用域正确 -->
-        <param name="front_x" type = "double" value = "0.0"/>
-        <param name="front_y" value = "0.0"/>
-        <param name="front_z" value = "0.0"/>
+        <!-- 两个trans lidar的消息都是发布到了IMU_LINK上的，所以这里要给IMU到base_link的外参数 -->
+        <param name="front_x" value = "-0.458"/>
+        <param name="front_y" value = "-0.157"/>
+        <param name="front_z" value = "0.008"/>
         <param name="front_roll" value = "0.0"/>
         <param name="front_pitch" value = "0.0"/>
         <param name="front_yaw" value = "0.0"/>
-        <param name="back_x" value = "0.0"/>
-        <param name="back_y" value = "0.0"/>
-        <param name="back_z" value = "0.0"/>
+        <param name="back_x" value = "-0.458"/>
+        <param name="back_y" value = "-0.157"/>
+        <param name="back_z" value = "0.008"/>
         <param name="back_roll" value = "0.0"/>
         <param name="back_pitch" value = "0.0"/>
         <param name="back_yaw" value = "0.0"/>
