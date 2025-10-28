@@ -1,0 +1,22 @@
+<launch>
+    <node pkg="merge_two_lidarpts" type="merge_two_lidarpts_node" name="merge_two_lidarpts" output="screen">
+        <!-- 确保参数作用域正确 -->
+        <param name="front_x" type = "double" value = "0.0"/>
+        <param name="front_y" value = "0.0"/>
+        <param name="front_z" value = "0.0"/>
+        <param name="front_roll" value = "0.0"/>
+        <param name="front_pitch" value = "0.0"/>
+        <param name="front_yaw" value = "0.0"/>
+        <param name="back_x" value = "0.0"/>
+        <param name="back_y" value = "0.0"/>
+        <param name="back_z" value = "0.0"/>
+        <param name="back_roll" value = "0.0"/>
+        <param name="back_pitch" value = "0.0"/>
+        <param name="back_yaw" value = "0.0"/>
+        <param name="aim_frame_id" type = "string" value = "base_link"/>
+        <param name="front_lidar_topic" type = "string" value = "/rslidar_points_trans_front"/>
+        <param name="back_lidar_topic" type = "string" value = "/rslidar_points_trans_back"/>
+        <param name="merged_lidar_topic" type = "string" value = "/rslidar_points_trans_merged"/>
+
+    </node>
+</launch>

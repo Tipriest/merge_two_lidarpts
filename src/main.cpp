@@ -64,12 +64,12 @@ struct trans_from_lidar_to_base {
 };
 class LidarPointCloudMerger {
 public:
-  LidarPointCloudMerger(ros::NodeHandle& nh) {
+  LidarPointCloudMerger(ros::NodeHandle &nh) {
     node = nh;
     // Initialize subscribers for the front and back LiDARs
-    sub_front = node.subscribe("/rslidar_points_front", 10,
+    sub_front = node.subscribe(front_lidar_topic, 10,
                                &LidarPointCloudMerger::frontCallback, this);
-    sub_back = node.subscribe("/rslidar_points_back", 10,
+    sub_back = node.subscribe(back_lidar_topic, 10,
                               &LidarPointCloudMerger::backCallback, this);
 
     // 确保正确读取参数，并打印日志以验证
@@ -99,11 +99,22 @@ public:
     node.param<double>("back_yaw", back_yaw, 0.0);
     ROS_INFO("Loaded parameter back_yaw: %f", back_yaw);
     node.param<std::string>("aim_frame_id", aim_frame_id, "ttt_err_check");
-    std::cout<<"Loaded parameter aim_frame_id: "<< aim_frame_id<<std::endl;
-
+    std::cout << "Loaded parameter aim_frame_id: " << aim_frame_id << std::endl;
+    node.param<std::string>("front_lidar_topic", front_lidar_topic,
+                            "/rslidar_points_front");
+    std::cout << "Loaded parameter front_lidar_topic: " << front_lidar_topic
+              << std::endl;
+    node.param<std::string>("back_lidar_topic", back_lidar_topic,
+                            "/rslidar_points_back");
+    std::cout << "Loaded parameter back_lidar_topic: " << back_lidar_topic
+              << std::endl;
+    node.param<std::string>("merged_lidar_topic", merged_lidar_topic,
+                            "/rslidar_points_merged");
+    std::cout << "Loaded parameter merged_lidar_topic: " << merged_lidar_topic
+              << std::endl;
     // Initialize publisher for the merged point cloud
     pub_merged =
-        node.advertise<sensor_msgs::PointCloud2>("/rslidar_points_merged", 10);
+        node.advertise<sensor_msgs::PointCloud2>(merged_lidar_topic, 10);
 
     // Set up homogeneous transformation matrices (to be filled by the user)
 
@@ -192,6 +203,9 @@ private:
   double back_pitch = 0.0;
   double back_yaw = 0.0;
   std::string aim_frame_id = "";
+  std::string front_lidar_topic = "";
+  std::string back_lidar_topic = "";
+  std::string merged_lidar_topic = "";
 };
 
 int main(int argc, char *argv[]) {
